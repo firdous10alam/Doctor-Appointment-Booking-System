@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANDi - Doctor Appointment System</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100%;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .nav-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: #34495e;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-button:hover {
+            background-color: #3d566e;
+        }
+
+        .section {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .active-section {
+            display: block;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .calendar-day {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .prescription-builder {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .drug-list {
+            width: 200px;
+            border-right: 1px solid #ddd;
+            padding-right: 20px;
+        }
+
+        .drug-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            cursor: move;
+            border-radius: 5px;
+        }
+
+        .prescription-preview {
+            flex: 1;
+            min-height: 400px;
+            border: 1px dashed #ddd;
+            padding: 20px;
+        }
+
+        .patient-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .template-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .template-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Dashboard</h2>
+        <button class="nav-button" onclick="showSection('appointments')">Appointments</button>
+        <button class="nav-button" onclick="showSection('prescriptions')">Prescriptions</button>
+        <button class="nav-button" onclick="showSection('drugs')">Drug Management</button>
+        <button class="nav-button" onclick="showSection('templates')">Treatment Templates</button>
+        <button class="nav-button" onclick="showSection('patients')">Patient Panel</button>
+        <button class="nav-button" onclick="showSection('invoices')">Invoicing</button>
+    </div>
+
+    <div class="main-content">
+        <!-- Appointments Section -->
+        <div id="appointments" class="section active-section">
+            <h2>Appointment Management</h2>
+            <div class="calendar">
+                <!-- Calendar days would be generated dynamically -->
+            </div>
+            <div class="appointment-list">
+                <h3>Upcoming Appointments</h3>
+                <!-- Appointment items would be dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Prescriptions Section -->
+        <div id="prescriptions" class="section">
+            <h2>Prescription Management</h2>
+            <div class="prescription-builder">
+                <div class="drug-list">
+                    <div class="drug-item" draggable="true">Paracetamol 500mg</div>
+                    <div class="drug-item" draggable="true">Amoxicillin 250mg</div>
+                    <!-- More drug items -->
+                </div>
+                <div class="prescription-preview" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <h4>Prescription Preview</h4>
+                    <!-- Dropped drugs would appear here -->
+                </div>
+                <div class="prescription-styler">
+                    <input type="color" id="prescription-color">
+                    <select id="font-select">
+                        <option>Arial</option>
+                        <option>Times New Roman</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drug Management Section -->
+        <div id="drugs" class="section">
+            <h2>Drug Inventory</h2>
+            <div class="add-drug-form">
+                <input type="text" placeholder="Drug Name">
+                <select>
+                    <option>Antibiotic</option>
+                    <option>Analgesic</option>
+                </select>
+                <button>Add Drug</button>
+            </div>
+            <div class="drug-table">
+                <!-- Drug list would be dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Patient Panel Section -->
+        <div id="patients" class="section">
+            <h2>Patient Records</h2>
+            <div class="patient-search">
+                <input type="text" placeholder="Search patients...">
+            </div>
+            <div class="patient-details">
+                <div class="patient-card">
+                    <h4>John Doe</h4>
+                    <p>Last Visit: 2023-07-15</p>
+                    <button class="view-history">View History</button>
+                </div>
+                <!-- More patient cards -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active-section');
+            });
+            document.getElementById(sectionId).classList.add('active-section');
+        }
+
+        // Drag and Drop functionality
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const drugItem = document.createElement('div');
+            drugItem.className = 'prescription-item';
+            drugItem.textContent = data;
+            ev.target.appendChild(drugItem);
+        }
+
+        document.querySelectorAll('.drug-item').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData("text", e.target.textContent);
+            });
+        });
+
+        // Initialize calendar
+        function initCalendar() {
+            // Calendar generation logic
+        }
+
+        // Initialize on load
+        window.onload = initCalendar;
+    </script>
+</body>
+</html> 
